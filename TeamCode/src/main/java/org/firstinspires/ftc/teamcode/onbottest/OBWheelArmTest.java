@@ -1,3 +1,5 @@
+package org.firstinspires.ftc.teamcode.onbottest;
+
 /* Copyright (c) 2017 FIRST. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,33 +29,84 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.wheeltest;
-
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-/**
- * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
- * All device access is managed through the HardwarePushbot class.
- * The code is structured as a LinearOpMode
- *
- * This particular OpMode executes a POV Game style Teleop for a PushBot
- * In this mode the left stick moves the robot FWD and back, the Right stick turns left and right.
- * It raises and lowers the claw using the Gampad Y and A buttons respectively.
- * It also opens and closes the claws slowly using the left and right Bumper buttons.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
 
-@TeleOp(name="WheelTest", group="Test")
+@TeleOp(name="OBWheelArmTest", group="Test")
 @Disabled
-public class BB_WheelTest_Linear extends LinearOpMode {
+public class OBWheelArmTest extends LinearOpMode {
 
+    /**
+     * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
+     * All device access is managed through the HardwarePushbot class.
+     * The code is structured as a LinearOpMode
+     *
+     * This particular OpMode executes a POV Game style Teleop for a PushBot
+     * In this mode the left stick moves the robot FWD and back, the Right stick turns left and right.
+     * It raises and lowers the claw using the Gampad Y and A buttons respectively.
+     * It also opens and closes the claws slowly using the left and right Bumper buttons.
+     *
+     * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
+     * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+     */
+    class MyBot
+    {
+        /* Public OpMode members. */
+        public DcMotor leftDrive   = null;
+        public DcMotor grabArm = null;
+        public DcMotor  rightDrive  = null;
+
+
+        public static final double MID_SERVO       =  0.5 ;
+        public static final double ARM_UP_POWER    =  0.1 ;
+        public static final double ARM_DOWN_POWER  = -0.1 ;
+
+        /* local OpMode members. */
+        HardwareMap hwMap           =  null;
+        private ElapsedTime period  = new ElapsedTime();
+
+        /* Constructor */
+        public MyBot(){
+
+        }
+
+        /* Initialize standard Hardware interfaces */
+        public void init(HardwareMap ahwMap) {
+            // Save reference to Hardware map
+            hwMap = ahwMap;
+
+            // Define and Initialize Motors
+            leftDrive  = hwMap.get(DcMotor.class, "left_drive");
+            rightDrive = hwMap.get(DcMotor.class, "right_drive");
+            leftDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+            rightDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+            grabArm    = hwMap.get(DcMotor.class, "grab_arm");
+            grabArm.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+
+
+            // Set all motors to zero power
+            leftDrive.setPower(0);
+            rightDrive.setPower(0);
+
+            // Set all motors to run without encoders.
+            // May want to use RUN_USING_ENCODERS if encoders are installed.
+            leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            grabArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+
+        }
+    }
     /* Declare OpMode members. */
-    HardwarePushbot robot           = new HardwarePushbot();   // Use a Pushbot's hardware
-                                                               // could also use HardwarePushbotMatrix class.
+    MyBot robot           = new MyBot();   // Use a Pushbot's hardware
+    // could also use HardwarePushbotMatrix class.
     double          clawOffset      = 0;                       // Servo mid position
     final double    CLAW_SPEED      = 0.02 ;                   // sets rate to move servo
 
@@ -71,7 +124,7 @@ public class BB_WheelTest_Linear extends LinearOpMode {
         robot.init(hardwareMap);
 
         // Send telemetry message to signify robot waiting;
-        telemetry.addData("Brahmi Bot", "Hello There");    //
+        telemetry.addData("Brahmi Bot", "OnBot-Wheel-ARM-test");    //
         telemetry.update();
 
         // Wait for the game to start (driver presses PLAY)
@@ -102,7 +155,13 @@ public class BB_WheelTest_Linear extends LinearOpMode {
             robot.leftDrive.setPower(left);
             robot.rightDrive.setPower(right);
 
-
+// Use gamepad buttons to move arm up (Y) and down (A)
+            if (gamepad1.y)
+                robot.grabArm.setPower(robot.ARM_UP_POWER);
+            else if (gamepad1.a)
+                robot.grabArm.setPower(robot.ARM_DOWN_POWER);
+            else
+                robot.grabArm.setPower(0.0);
 
             // Pace this loop so jaw action is reasonable speed.
             sleep(50);

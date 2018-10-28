@@ -1,3 +1,5 @@
+package org.firstinspires.ftc.teamcode.onbottest;
+
 /* Copyright (c) 2017 FIRST. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,33 +29,81 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode.wheeltest;
-
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-/**
- * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
- * All device access is managed through the HardwarePushbot class.
- * The code is structured as a LinearOpMode
- *
- * This particular OpMode executes a POV Game style Teleop for a PushBot
- * In this mode the left stick moves the robot FWD and back, the Right stick turns left and right.
- * It raises and lowers the claw using the Gampad Y and A buttons respectively.
- * It also opens and closes the claws slowly using the left and right Bumper buttons.
- *
- * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
- */
 
-@TeleOp(name="WheelTest", group="Test")
+
+
+
+
+@TeleOp(name="OBWheelTest", group="Test")
 @Disabled
-public class BB_WheelTest_Linear extends LinearOpMode {
+public class OBWheelTest extends LinearOpMode {
 
+    /**
+     * This OpMode uses the common Pushbot hardware class to define the devices on the robot.
+     * All device access is managed through the HardwarePushbot class.
+     * The code is structured as a LinearOpMode
+     *
+     * This particular OpMode executes a POV Game style Teleop for a PushBot
+     * In this mode the left stick moves the robot FWD and back, the Right stick turns left and right.
+     * It raises and lowers the claw using the Gampad Y and A buttons respectively.
+     * It also opens and closes the claws slowly using the left and right Bumper buttons.
+     *
+     * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
+     * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+     */
+    class MyBot
+    {
+        /* Public OpMode members. */
+        public DcMotor leftDrive   = null;
+        public DcMotor  rightDrive  = null;
+
+
+        public static final double MID_SERVO       =  0.5 ;
+        public static final double ARM_UP_POWER    =  0.45 ;
+        public static final double ARM_DOWN_POWER  = -0.45 ;
+
+        /* local OpMode members. */
+        HardwareMap hwMap           =  null;
+        private ElapsedTime period  = new ElapsedTime();
+
+        /* Constructor */
+        public MyBot(){
+
+        }
+
+        /* Initialize standard Hardware interfaces */
+        public void init(HardwareMap ahwMap) {
+            // Save reference to Hardware map
+            hwMap = ahwMap;
+
+            // Define and Initialize Motors
+            leftDrive  = hwMap.get(DcMotor.class, "left_drive");
+            rightDrive = hwMap.get(DcMotor.class, "right_drive");
+            leftDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+            rightDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+
+            // Set all motors to zero power
+            leftDrive.setPower(0);
+            rightDrive.setPower(0);
+
+            // Set all motors to run without encoders.
+            // May want to use RUN_USING_ENCODERS if encoders are installed.
+            leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            rightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+        }
+    }
     /* Declare OpMode members. */
-    HardwarePushbot robot           = new HardwarePushbot();   // Use a Pushbot's hardware
-                                                               // could also use HardwarePushbotMatrix class.
+    MyBot robot           = new MyBot();   // Use a Pushbot's hardware
+    // could also use HardwarePushbotMatrix class.
     double          clawOffset      = 0;                       // Servo mid position
     final double    CLAW_SPEED      = 0.02 ;                   // sets rate to move servo
 
