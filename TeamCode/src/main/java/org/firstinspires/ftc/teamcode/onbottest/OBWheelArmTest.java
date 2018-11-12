@@ -64,8 +64,8 @@ public class OBWheelArmTest extends LinearOpMode {
 
 
         public static final double MID_SERVO       =  0.5 ;
-        public static final double ARM_UP_POWER    =  0.1 ;
-        public static final double ARM_DOWN_POWER  = -0.1 ;
+        public static final double ARM_UP_POWER    =  0.2 ;
+        public static final double ARM_DOWN_POWER  = -0.2 ;
 
         /* local OpMode members. */
         HardwareMap hwMap           =  null;
@@ -137,7 +137,7 @@ public class OBWheelArmTest extends LinearOpMode {
             // In this mode the Left stick moves the robot fwd and back, the Right stick turns left and right.
             // This way it's also easy to just drive straight, or just turn.
             drive = -gamepad1.left_stick_y;
-            turn  =  gamepad1.right_stick_x;
+            turn  =  gamepad1.left_stick_x;
 
             // Combine drive and turn for blended motion.
             left  = drive + turn;
@@ -156,12 +156,22 @@ public class OBWheelArmTest extends LinearOpMode {
             robot.rightDrive.setPower(right);
 
 // Use gamepad buttons to move arm up (Y) and down (A)
+/*
             if (gamepad1.y)
                 robot.grabArm.setPower(robot.ARM_UP_POWER);
             else if (gamepad1.a)
                 robot.grabArm.setPower(robot.ARM_DOWN_POWER);
             else
                 robot.grabArm.setPower(0.0);
+*/
+
+            if (gamepad1.right_bumper)
+                robot.grabArm.setPower(robot.ARM_UP_POWER);
+            else if (gamepad1.right_trigger>0)
+                robot.grabArm.setPower(robot.ARM_DOWN_POWER);
+            else
+                robot.grabArm.setPower(0.0);
+
 
             // Pace this loop so jaw action is reasonable speed.
             sleep(50);

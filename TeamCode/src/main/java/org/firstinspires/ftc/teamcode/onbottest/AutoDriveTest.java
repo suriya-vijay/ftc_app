@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -59,7 +60,7 @@ public class AutoDriveTest extends LinearOpMode {
         /* Public OpMode members. */
         public DcMotor leftDrive   = null;
         public DcMotor  rightDrive  = null;
-
+        public Servo markerServo = null;
 
         public static final double MID_SERVO       =  0.5 ;
         public static final double ARM_UP_POWER    =  0.45 ;
@@ -82,6 +83,8 @@ public class AutoDriveTest extends LinearOpMode {
             // Define and Initialize Motors
             leftDrive  = hwMap.get(DcMotor.class, "left_drive");
             rightDrive = hwMap.get(DcMotor.class, "right_drive");
+            markerServo = hwMap.get(Servo.class, "marker_servo");
+
             leftDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
             rightDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
@@ -114,9 +117,10 @@ public class AutoDriveTest extends LinearOpMode {
         robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Send telemetry message to indicate successful Encoder reset
-        telemetry.addData("Path0",  "Starting at %7d :%7d",
+        telemetry.addData("Path0",  "Starting at %7d :%7d - %7f" ,
                 robot.leftDrive.getCurrentPosition(),
-                robot.rightDrive.getCurrentPosition());
+                robot.rightDrive.getCurrentPosition(),
+                robot.markerServo.getPosition());
         telemetry.update();
 
         // Wait for the game to start (driver presses PLAY)
@@ -124,9 +128,19 @@ public class AutoDriveTest extends LinearOpMode {
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(DRIVE_SPEED,  10,  10, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        // encoderDrive(TURN_SPEED,   -6, 6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        // encoderDrive(DRIVE_SPEED, 24,24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+        /**/
+        encoderDrive(DRIVE_SPEED,  -8,  -8, 5.0); // forward
+        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // turn left
+        encoderDrive(DRIVE_SPEED,  -48,  -48, 5.0); // forward
+        encoderDrive(TURN_SPEED,   -12, 10, 4.0); // turn right
+        encoderDrive(DRIVE_SPEED,  -27,  -27, 5.0); // run forward into depot
+
+        //        resetMarker();
+
+        dropMarker();
+        resetMarker();
+
+
 
 
         //  sleep(1000);     // pause for servos to move
@@ -135,6 +149,24 @@ public class AutoDriveTest extends LinearOpMode {
         telemetry.update();
     }
 
+    public void dropMarker(){
+        runtime.reset();
+        while (opModeIsActive() &&
+                (runtime.seconds() < 2.0)){
+            robot.markerServo.setPosition(0.5);
+
+        }
+    }
+
+    public void resetMarker(){
+        runtime.reset();
+
+        while (opModeIsActive() &&
+                (runtime.seconds() < 2.0)){
+            robot.markerServo.setPosition(0);
+
+        }
+    }
     /*
      *  Method to perfmorm a relative move, based on encoder counts.
      *  Encoders are not reset as the move is based on the current position.
